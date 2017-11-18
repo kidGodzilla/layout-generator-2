@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>Design Crew Drag and Drop Layout Generator</title>
+    <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.4/dragula.min.css'>
+        <style type="text/css">
+          @import url(https://fonts.googleapis.com/css?family=Lato:400,300,700,400italic);
+          /* Browser mockup code*/
+
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: 'Lato', sans-serif;
+          }
+
+          .browser-mockup {
+            border-top: 2em solid rgba(230, 230, 230, 0.7);
+            box-shadow: 0 0.1em 1em 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            border-radius: 3px 3px 0 0
+          }
+
+          .browser-mockup:before {
+            display: block;
+            position: absolute;
+            content: '';
+            top: -1.25em;
+            left: 1em;
+            width: 0.5em;
+            height: 0.5em;
+            border-radius: 50%;
+            background-color: #f44;
+            box-shadow: 0 0 0 2px #f44, 1.5em 0 0 2px #9b3, 3em 0 0 2px #fb5;
+          }
+
+          .browser-mockup > * {
+            display: block;
+          }
+
+          body {
+            background: linear-gradient(to right, #8e44ad, #c0392b);
+            /*   display: flex; */
+          }
+
+          .browser-mockup {
+            /*   margin: 2em;
+            flex: 1; */
+            background: #f9f9f9;
+            min-height: 100px;
+            width: 70vw;
+            position: absolute;
+            right: calc(15vw - 155px);
+          }
+
+
+          /* Draggable & Sortable */
+
+          .qitem {
+            cursor: move;
+          }
+
+
+          /* #sortable .qitem {
+            padding: 7px 10px;
+            margin-bottom: 4px;
+            border: 1px solid #f3f3f3;
+          } */
+
+          #sortable,
+          #draggable {
+            /*   border: 1px solid #ccc; */
+            padding: 5px;
+            min-height: 100%;
+            width: 600px;
+            margin: auto;
+            /*   padding: 10px; */
+          }
+
+          #sortable li,
+          #sortable li {
+            margin: 0;
+            background-color: transparent;
+            width: 100%;
+          }
+
+          #sortable {
+            min-height: 100%;
+          }
+
+          li {
+            /*   border: 1px solid #e7e7e7; */
+            /*   padding: 10px; */
+            list-style: none;
+            margin-bottom: 5px;
+            /*   margin-left: 10px; */
+            width: 300px;
+          }
+
+          .fade {
+            opacity: 0.3
+          }
+
+          #draggable .question img {
+            max-width: 300px;
+          }
+
+          #sortable .question img {
+            width: 100%;
+          }
+
+          #draggable {
+            float: left;
+            width: 300px !important;
+            overflow-x: hidden !important;
+            height: 100vh;
+            overflow-y: initial;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #222;
+          }
+
+          #draggable span {
+            text-align: center;
+            display: block;
+            width: 290px;
+            color: #fff;
+            font-family: 'Lato', sans-serif;
+          }
+          
+          #draggable p {
+              cursor: pointer;
+          }
+
+          #sortable {
+            width: 70vw !important;
+            min-height: 100px;
+            padding: 0;
+          }
+
+          #sortable::after {
+            content: 'Drag blocks here from the left panel. Drag away to remove.';
+            text-align: center;
+            display: block;
+            /*   width: 70vw; */
+            padding: 45px 0;
+            text-transform: uppercase;
+            font-family: 'Lato', sans-serif;
+          }
+          #sortable.none::after {
+            display: none;
+          }
+
+          #draggable {
+          /*   display: none; */
+          }
+          #draggable li {
+            display: none;
+          }
+          #draggable > p {
+            width: 100%;
+            text-align: center;
+          }
+          #draggable > p > a {
+            text-decoration: none;
+            color: #fff;
+            font-family: 'Lato', sans-serif;
+          }
+          #draggable > span {
+            cursor: pointer;
+          }
+          .ui-state-highlight {
+            background: #ddd;
+          }
+          .ui-state-del-highlight::after {
+            content: 'Drop Here to Remove';
+            position: fixed;
+            padding: 50vh 75px;
+          /*   text-align: center; */
+            color: #fff;
+            font-family: 'Lato', sans-serif;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 250px;
+            z-index:999;
+            background: rgba(255,0,0,1);
+          }
+          .question img {
+            background: #fff;
+          }
+          .utility-menu {
+            position: absolute;
+            top: -25px;
+            right: 20px;
+            color: #222;
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+          }
+          .utility-menu a {
+            cursor: pointer;
+            text-decoration: none;
+            color: #222 !important;
+          }
+          .utility-menu a:hover {
+            color: #666 !important;
+          }
+          .underlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.36);
+            display: none;
+          }
+          .modal {
+            position: fixed;
+            top: calc(50% - 144px);
+            left: calc(50% - 333px);
+            background: #eee;
+            padding: 50px;
+            display: none;
+          }
+          .modal button {
+            display: block;
+            margin-top: 15px;
+            padding: 7px 14px;
+            background: #222;
+            color: #eee;
+            border: none;
+          }
+          .modal h2 {
+            margin-top: 0;
+          }
+          .modal input[type=text] {
+            padding: 10px 18px;
+            font-size: 18px;
+            width: 565px;
+            border: 1px solid #dcdcdc;
+          }
+          #draggable p {
+            margin: 0;
+            padding: 5px;
+          }
+          #draggable p:hover {
+            color: #666;
+            background-color: #333;
+          }
+        </style>
+        <!-- <link rel="stylesheet" href="yeti-cms.css"> -->
+
+    
+    <script type="text/javascript">
+    (function(e,t){var n=e.amplitude||{_q:[],_iq:{}};var r=t.createElement("script");r.type="text/javascript";
+    r.async=true;r.src="https://d24n15hnbwhuhn.cloudfront.net/libs/amplitude-3.0.1-min.gz.js";
+    r.onload=function(){e.amplitude.runQueuedFunctions()};var i=t.getElementsByTagName("script")[0];
+    i.parentNode.insertBefore(r,i);function s(e,t){e.prototype[t]=function(){this._q.push([t].concat(Array.prototype.slice.call(arguments,0)));
+    return this}}var o=function(){this._q=[];return this};var a=["add","append","clearAll","prepend","set","setOnce","unset"];
+    for(var u=0;u<a.length;u++){s(o,a[u])}n.Identify=o;var c=function(){this._q=[];return this;
+    };var p=["setProductId","setQuantity","setPrice","setRevenueType","setEventProperties"];
+    for(var l=0;l<p.length;l++){s(c,p[l])}n.Revenue=c;var d=["init","logEvent","logRevenue","setUserId","setUserProperties","setOptOut","setVersionName","setDomain","setDeviceId","setGlobalUserProperties","identify","clearUserProperties","setGroup","logRevenueV2","regenerateDeviceId"];
+    function v(e){function t(t){e[t]=function(){e._q.push([t].concat(Array.prototype.slice.call(arguments,0)));
+    }}for(var n=0;n<d.length;n++){t(d[n])}}v(n);n.getInstance=function(e){e=(!e||e.length===0?"$default_instance":e).toLowerCase();
+    if(!n._iq.hasOwnProperty(e)){n._iq[e]={_q:[]};v(n._iq[e])}return n._iq[e]};e.amplitude=n;
+    })(window,document);
+
+    amplitude.getInstance().init("2bfb6a31fb50bd09ed0691dc0348704d");
+    </script>
+  </head>
+
+  <body>
+    <div class="browser-mockup">
+    <div class="utility-menu">
+      <a onclick="reset()">Reset Page</a>&nbsp;&nbsp;
+      <a class="new-button" target="_blank">New Page</a>&nbsp;&nbsp;
+      <a onclick="share()">Share Page</a>&nbsp;&nbsp;
+      <a class="outs" href="html/output.html#" target="_blank">Preview HTML</a>
+    </div>
+  <ol id="sortable"><div class="after"></div></ol>
+  </div>
+  <div>
+    <ul id="draggable">
+      <span style="margin-bottom:5px;"><small>SELECT A CATEGORY</small></span>
+      <!-- <p><a data-type="a">Appuri</a></p> -->
+
+      <p><a data-type="h">Menus</a></p>
+
+      <p><a data-type="hd">Headers</a></p>
+
+      <p><a data-type="con">Content</a></p>
+      <p><a data-type="f">Features</a></p>
+
+      <p><a data-type="p">Pricing</a></p>
+      <p><a data-type="t">Team</a></p>
+
+      <p><a data-type="frm">Forms</a></p>
+
+      <p><a data-type="cta">Call to Actions</a></p>
+      <p><a data-type="tm">Testimonials</a></p>
+
+      <p><a data-type="c">Contact</a></p>
+
+      <p><a data-type="ft">Footers</a></p>
+
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/11.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/12.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/13.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/14.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/15.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/16.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/17.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/18.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/19.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/20.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/21.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/22.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/23.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/24.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/25.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/26.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/27.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/28.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/29.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/30.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/31.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/32.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/33.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/34.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/35.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem con">
+          <div>
+            <span class="question"><img src="con/36.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem c">
+          <div>
+            <span class="question"><img src="c/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/11.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/12.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/13.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/14.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/15.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem hd">
+          <div>
+            <span class="question"><img src="cta/16.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem hd">
+          <div>
+            <span class="question"><img src="cta/17.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem hd">
+          <div>
+            <span class="question"><img src="cta/18.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem hd">
+          <div>
+            <span class="question"><img src="cta/19.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem hd">
+          <div>
+            <span class="question"><img src="cta/20.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem hd">
+          <div>
+            <span class="question"><img src="cta/21.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem cta">
+          <div>
+            <span class="question"><img src="cta/22.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/11.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/12.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/13.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/14.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/15.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/16.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/17.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/18.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/19.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/20.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/21.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/22.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/23.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/24.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/25.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/26.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/27.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/28.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/29.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/30.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/31.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/32.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem f">
+          <div>
+            <span class="question"><img src="f/33.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/11.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem frm">
+          <div>
+            <span class="question"><img src="frm/12.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/11.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem ft">
+          <div>
+            <span class="question"><img src="ft/12.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/11.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/12.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/13.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/14.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/15.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/16.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/17.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/18.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/19.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem h">
+          <div>
+            <span class="question"><img src="h/20.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem p">
+          <div>
+            <span class="question"><img src="p/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem t">
+          <div>
+            <span class="question"><img src="t/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/1.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/2.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/3.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/4.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/5.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/6.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/7.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/8.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/9.jpg"></span>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="qitem tm">
+          <div>
+            <span class="question"><img src="tm/10.jpg"></span>
+          </div>
+        </div>
+      </li>
+
+      
+
+      
+
+      
+
+      
+
+      
+
+      
+
+
+
+
+
+
+    </ul>
+  </div>
+  <div class="underlay"></div>
+  <div class="modal">
+    <h2>Share this Mockup</h2>
+    <p>Share the following URL with friends, stakeholders, or clients to gather feedback.</p>
+    <input type="text">
+    <button onclick="closeModal()">Close</button>
+  </div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.4/dragula.min.js'></script>
+
+<script>
+
+  // Example URL: index.html#h/4.jpg;cta/16.jpg;f/10.jpg;con/21.jpg;con/17.jpg;con/18.jpg;con/35.jpg;tm/7.jpg;p/5.jpg;cta/5.jpg;ft/9.jpg;
+var count = 0;
+
+function reset () {
+  location.hash = "";
+  $('#sortable').html('').removeClass('none');
+}
+
+function share () {
+  $('.underlay, .modal').fadeIn();
+  $(".modal input[type='text']").select();
+}
+function closeModal () {
+  $('.underlay, .modal').hide();
+}
+
+$(document).ready(function() {
+
+  // build from hash
+  if (location.hash && location.hash.length > 1) {
+    var hash = location.hash.slice(1).split(';');
+    hash.forEach(function (item) {
+      if (item && item.length > 1) {
+        $('#sortable').append('<li style="display: list-item;"><div class="qitem s"><div><span class="question"><img src="'+item+'"></span></div></div></li>');
+      }
+    });
+    $('#sortable').addClass('none');
+  }
+
+  $('#draggable > p').click(function() {
+    var clss = $(this).find('a').attr('data-type');
+    $('#draggable > p').hide();
+
+    $('#draggable li .qitem.'+clss).parent().fadeIn();
+    $('#draggable > span > small').html('Back to Palette');
+  });
+
+  $('#draggable > span').click(function() {
+    $('#draggable li').hide();
+    $('#draggable > p').fadeIn();
+    $('#draggable > span > small').html('PALETTE');
+  });
+
+  function modifyHash () {
+    // Modify hash
+        setTimeout(function () {
+          var newHash = "#";
+          $('#sortable li img').each(function () {
+              var src = $(this).attr('src');
+              if (src) newHash += src + ";";
+          });
+
+          location.hash = newHash;
+
+          $('.outs').attr('href', 'html/output.html' + newHash);
+
+          if ($('.modal input[type=text]').val() !== location.protocol + "//" + location.host + location.pathname + newHash)
+              $('.modal input[type=text]').val(location.protocol + "//" + location.host + location.pathname + newHash);
+        }, 100);
+  }
+
+  dragula([document.getElementById('draggable'), document.getElementById('sortable')], {
+    copy: function (el, source) {
+      if ($(source).attr('id') === 'draggable') {
+        $('#sortable').addClass('none');
+        return true;
+      }
+    },
+    accepts: function (el, target) {
+      modifyHash();
+      return $(target).attr('id') !== 'draggable'
+    },
+    removeOnSpill: function () {
+      modifyHash();
+      return true;
+    }
+  });
+
+  $('.new-button').attr('href', location.protocol + "//" + location.host + location.pathname);
+  $('.modal input[type=text]').val(location.protocol + "//" + location.host + location.pathname);
+
+  $(".modal input[type='text']").on("click", function () {
+     $(this).select();
+  });
+
+  $('.underlay').click(function () {
+    closeModal();
+  });
+  
+  setInterval(modifyHash, 1000);
+
+});
+</script>
+</body>
+</html>
