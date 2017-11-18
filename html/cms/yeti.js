@@ -34,7 +34,7 @@ window.UPLOADCARE_PUBLIC_KEY = '3ff2e4c7b24492f75d5c';window.AVIARY_API_KEY = '4
             });
         });
 
-        if (window['AVIARY_API_KEY']) $.getScript('/cms/aviary-editor.js').then(() => {
+        if (window['AVIARY_API_KEY']) $.getScript('cms/aviary-editor.js').then(() => {
             if (!window['Aviary']) return;
 
             window.csdkImageEditor = new Aviary.Feather({
